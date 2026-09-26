@@ -1,8 +1,8 @@
 #!/bin/bash
-# Instalator Hearthstone Access dla macOS (nieoficjalny port, mowa przez VoiceOver).
-# Buduje moda na tym Macu z Twojej gry i oficjalnej paczki HSA, instaluje
-# strażnika, który przy każdym starcie Battle.neta wstrzykuje moda, i restartuje
-# Battle.net. Żaden plik gry nie jest zmieniany.
+# Hearthstone Access for macOS installer (unofficial port, speech via the macOS
+# synthesizer through Prism). Builds the mod on this Mac from your installed game
+# and the official HSA release, installs a watcher that injects the mod whenever
+# Battle.net starts, and restarts Battle.net. No game file is modified.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 H="$HOME/Library/Application Support/HearthstoneAccess"
@@ -10,45 +10,45 @@ SRC="$H/src"
 AGENT="$HOME/Library/LaunchAgents/pl.hsa-mac.watch.plist"
 LOADER=/Applications/Hearthstone/HearthstoneAccess/libhsaloader.dylib
 say() { echo; echo "== $*"; }
-fail() { echo; echo "BŁĄD: $*"; echo "Instalacja przerwana. Naciśnij Enter, żeby zamknąć."; read -r _; exit 1; }
+fail() { echo; echo "ERROR: $*"; echo "Installation aborted. Press Enter to close."; read -r _; exit 1; }
 
-say "Hearthstone Access dla Maca - instalacja"
-[ -d /Applications/Hearthstone/Hearthstone.app ] || fail "Nie znaleziono gry w /Applications/Hearthstone. Zainstaluj Hearthstone przez Battle.net."
-[ -d /Applications/Battle.net.app ] || fail "Nie znaleziono Battle.net w folderze Aplikacje."
-pgrep -x Hearthstone >/dev/null && fail "Hearthstone jest włączony. Zamknij grę i uruchom instalator ponownie."
+say "Hearthstone Access for Mac - installation"
+[ -d /Applications/Hearthstone/Hearthstone.app ] || fail "Hearthstone not found in /Applications/Hearthstone. Install it with Battle.net first."
+[ -d /Applications/Battle.net.app ] || fail "Battle.net not found in the Applications folder."
+pgrep -x Hearthstone >/dev/null && fail "Hearthstone is running. Quit the game and run the installer again."
 
-say "Sprawdzam narzędzia"
-xcode-select -p >/dev/null 2>&1 || { xcode-select --install >/dev/null 2>&1; fail "Brak narzędzi Xcode (Command Line Tools). Otworzyło się okno ich instalacji; po zakończeniu uruchom instalator ponownie."; }
-command -v python3 >/dev/null || fail "Brak python3 (instaluje się razem z Command Line Tools)."
+say "Checking tools"
+xcode-select -p >/dev/null 2>&1 || { xcode-select --install >/dev/null 2>&1; fail "Xcode Command Line Tools are missing. Their installer window has opened; when it finishes, run this installer again."; }
+command -v python3 >/dev/null || fail "python3 is missing (it comes with the Command Line Tools)."
 export PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="$HOME/.dotnet" DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
 if ! dotnet --list-sdks 2>/dev/null | grep -q '^8\.'; then
-    say "Instaluję .NET 8 SDK od Microsoftu do ~/.dotnet (około 200 MB, chwilę to potrwa)"
-    curl -sSL -o /tmp/dotnet-install.sh https://dot.net/v1/dotnet-install.sh || fail "Nie udało się pobrać instalatora .NET."
-    bash /tmp/dotnet-install.sh --channel 8.0 --install-dir "$HOME/.dotnet" >/dev/null || fail "Instalacja .NET się nie powiodła."
+    say "Installing the .NET 8 SDK from Microsoft into ~/.dotnet (about 200 MB, this takes a while)"
+    curl -sSL -o /tmp/dotnet-install.sh https://dot.net/v1/dotnet-install.sh || fail "Could not download the .NET installer."
+    bash /tmp/dotnet-install.sh --channel 8.0 --install-dir "$HOME/.dotnet" >/dev/null || fail ".NET installation failed."
 fi
 
-say "Kopiuję pliki moda"
+say "Copying mod files"
 mkdir -p "$SRC/downloads"
 FILES=""
 for d in Resources zrodla; do [ -f "$HERE/$d/rebuild.sh" ] && { FILES="$HERE/$d"; break; }; done
-[ -n "$FILES" ] || fail "Nie znaleziono folderu z plikami moda (Resources) obok instalatora."
-rsync -a --delete --exclude downloads --exclude work "$FILES/" "$SRC/" || fail "Nie udało się skopiować plików."
+[ -n "$FILES" ] || fail "The mod files folder (Resources) was not found next to the installer."
+rsync -a --delete --exclude downloads --exclude work "$FILES/" "$SRC/" || fail "Could not copy the files."
 chmod +x "$SRC/rebuild.sh" "$SRC/hsa-watch.sh"
 
-say "Pobieram Hearthstone Access z hearthstoneaccess.com i listę zmian moda z GitHuba"
-curl -sSL -o "$SRC/downloads/hsa.zip.new" https://hearthstoneaccess.com/files/pre_patch.zip || fail "Nie udało się pobrać paczki Hearthstone Access."
-curl -sSL -o "$SRC/downloads/hsa.diff.patch.new" https://raw.githubusercontent.com/antonshusharin/DevTools/master/diff.patch || fail "Nie udało się pobrać diff.patch."
+say "Downloading Hearthstone Access from hearthstoneaccess.com and its source diff from GitHub"
+curl -sSL -o "$SRC/downloads/hsa.zip.new" https://hearthstoneaccess.com/files/pre_patch.zip || fail "Could not download the Hearthstone Access release."
+curl -sSL -o "$SRC/downloads/hsa.diff.patch.new" https://raw.githubusercontent.com/antonshusharin/DevTools/master/diff.patch || fail "Could not download diff.patch."
 zipver=$(unzip -p "$SRC/downloads/hsa.zip.new" patch/Accessibility/hsa_manifest.json | python3 -c 'import json,sys;print(json.load(sys.stdin)["accessibility_version"])')
 gitver=$(curl -sSL https://raw.githubusercontent.com/antonshusharin/DevTools/master/hsa_version | tr -d '[:space:]')
-echo "Wersja moda w paczce: $zipver, w repozytorium: $gitver"
-[ "$zipver" = "$gitver" ] || fail "Wersja paczki moda ($zipver) nie zgadza się z repozytorium ($gitver). Spróbuj za jakiś czas, gdy autorzy HSA opublikują obie."
+echo "Mod version in the release: $zipver, in the repository: $gitver"
+[ "$zipver" = "$gitver" ] || fail "The mod release version ($zipver) does not match the repository ($gitver). Try again later, once the HSA developers have published both."
 mv "$SRC/downloads/hsa.zip.new" "$SRC/downloads/hsa.zip"
 mv "$SRC/downloads/hsa.diff.patch.new" "$SRC/downloads/hsa.diff.patch"
 
-say "Buduję moda pod Twoją wersję gry (to potrwa około minuty)"
-"$SRC/rebuild.sh" "$SRC/downloads/hsa.zip" || fail "Budowanie moda się nie powiodło. Szczegóły są powyżej."
+say "Building the mod for your game version (about a minute)"
+"$SRC/rebuild.sh" "$SRC/downloads/hsa.zip" || fail "Building the mod failed. Details are above."
 
-say "Instaluję strażnika, który włącza moda przy każdym starcie Battle.neta"
+say "Installing the watcher that enables the mod whenever Battle.net starts"
 mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Logs/HearthstoneAccess"
 cp "$SRC/hsa-watch.sh" "$H/hsa-watch.sh"; chmod +x "$H/hsa-watch.sh"
 cat > "$AGENT" <<EOF
@@ -65,9 +65,9 @@ cat > "$AGENT" <<EOF
 </plist>
 EOF
 launchctl bootout "gui/$(id -u)/pl.hsa-mac.watch" 2>/dev/null
-launchctl bootstrap "gui/$(id -u)" "$AGENT" || fail "Nie udało się uruchomić strażnika."
+launchctl bootstrap "gui/$(id -u)" "$AGENT" || fail "Could not start the watcher."
 
-say "Uruchamiam Battle.net z modem"
+say "Starting Battle.net with the mod"
 if pgrep -x Battle.net >/dev/null; then
     osascript -e 'quit app "Battle.net"' >/dev/null 2>&1
     for i in $(seq 1 20); do pgrep -x Battle.net >/dev/null || break; sleep 1; done
@@ -80,9 +80,9 @@ for a in $(pgrep -f 'Agent.app/Contents/MacOS/Agent'); do
 done
 
 echo
-echo "GOTOWE. Hearthstone Access jest zainstalowany na stałe."
-echo "Uruchamiaj grę normalnie z Battle.neta (Graj). Mod włącza się sam, mowa idzie przez VoiceOver."
-echo "Po aktualizacji gry mod przebuduje się sam, gdy gra będzie zamknięta."
-echo "Żeby usunąć moda, użyj pliku Odinstaluj HSA.command."
-echo "Naciśnij Enter, żeby zamknąć to okno."
+echo "DONE. Hearthstone Access is installed permanently."
+echo "Start the game from Battle.net as usual (Play). The mod turns on by itself and speaks with your macOS system voice."
+echo "After a game update the mod rebuilds itself while the game is closed."
+echo "To remove the mod, use Uninstall Hearthstone access.command."
+echo "Press Enter to close this window."
 read -r _
