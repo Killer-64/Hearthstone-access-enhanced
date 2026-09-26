@@ -81,7 +81,7 @@ __attribute__((constructor)) static void hsa_init(void) {
     if (bf) { if (fscanf(bf, "%64s", want) != 1) want[0] = 0; fclose(bf); }
     if (sha256_file(GAME_ASM, have) != 0 || strcmp(want, have) != 0) {
         hlog("game Assembly-CSharp.dll changed (sha %s), mod disabled until rebuilt", have);
-        announce_later("Hearthstone Access nie został włączony: gra została zaktualizowana. Mod trzeba przebudować.");
+        announce_later("Hearthstone Access is not active: the game was updated and the mod has to be rebuilt.");
         return;
     }
     g_active = 1;
