@@ -15,7 +15,7 @@ This project is not affiliated with Blizzard Entertainment or with the Hearthsto
 ## Install
 
 1. Quit Hearthstone.
-2. Download [`release/Hearthstone access for Mac.zip`](release/), unzip it and open **Install Hearthstone access.command** (double-click, or run `bash "path/to/Install Hearthstone access.command"` in Terminal).
+2. Download [`release/HS access Mac port.zip`](release/), unzip it and open **Install Hearthstone access.command** (double-click, or run `bash "path/to/Install Hearthstone access.command"` in Terminal).
 3. When it says DONE, start the game from Battle.net as usual. The mod turns on by itself.
 
 After a game update the mod rebuilds itself while the game is closed.
@@ -45,3 +45,7 @@ This repository contains **no Blizzard code and no Hearthstone Access files**; t
 - Hearthstone Access: Guide Dev and the Hearthstone Access community developers.
 - Prism by Ethin Probst, MPL-2.0 (`Resources/voiceover/prism/LICENSE-prism-MPL-2.0.txt`).
 - Hearthstone is a trademark of Blizzard Entertainment.
+
+## License
+
+Copyright (c) 2026 Killer-64. All rights reserved. You may download and run the unmodified installer for personal use; modifying or redistributing the code or the package is not permitted. See [LICENSE](LICENSE). Prism keeps its own license (MPL-2.0).

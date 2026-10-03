@@ -8,7 +8,7 @@ synthesizer via Prism (https://github.com/ethindp/prism).
 
 Not affiliated with Blizzard Entertainment or with the Hearthstone Access
 developers. Use it at your own risk.
-Source code: https://github.com/Killer-64/Hearthstone-access-enhanced
+Source code: https://github.com/Killer-64/HS-access-Mac
 
 
 Requirements
@@ -66,3 +66,11 @@ Credits
 - Prism by Ethin Probst, MPL-2.0
   (Resources/voiceover/prism/LICENSE-prism-MPL-2.0.txt).
 - Hearthstone is a trademark of Blizzard Entertainment.
+
+
+License
+-------
+Copyright (c) 2026 Killer-64. All rights reserved. You may download and run
+the unmodified installer for personal use; modifying or redistributing the
+code or the package is not permitted. See the LICENSE file. Prism keeps its
+own license (MPL-2.0).
