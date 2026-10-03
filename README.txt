@@ -8,7 +8,7 @@ synthesizer via Prism (https://github.com/ethindp/prism).
 
 Not affiliated with Blizzard Entertainment or with the Hearthstone Access
 developers. Use it at your own risk.
-Source code: https://github.com/Killer-64/HS-access-Mac
+Source code: https://github.com/Killer-64/Heathstone-access-Mac
 
 
 Requirements
